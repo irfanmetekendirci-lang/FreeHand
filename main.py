@@ -1,6 +1,7 @@
 import cv2
 import config
 from utils.hand_tracking import HandDetector        # El tespiti sınıfını içe aktarıyoruz
+from utils.mouse_control import MouseController     # Mouse kontrolü için sınıfımızı içe aktarıyoruz
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.CAM_WIDTH)
@@ -8,11 +9,13 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.CAM_HEIGHT)
 
 print("Kamera başlatıldı. Çıkış için 'q' tuşuna basın.")
 
-# HandDetactor classımızdan nesen oluşturalım
+# HandDetactor classımızdan nesnemizi oluşturalım
 detector = HandDetector()
 
-# Oluşturduğumuz kameranın açık kalması için "While loop":
+# MouseController classımızdan nesnemizi oluşturalım
+mouse_ctrl = MouseController()
 
+# Oluşturduğumuz kameranın açık kalması için "While loop":
 while True:
     success, frame = cap.read()
     if not success:
@@ -22,8 +25,13 @@ while True:
 
     h, w, c = frame.shape  # Yükseklik ve genişliği al
 
-    frame = detector.findHands(frame)
-    lm_list = detector.findPosition(frame)
+    frame = detector.findHands(frame)           # Görüntüdeki elleri bulur ve ekleme noktalarını çizer.
+    lm_list = detector.findPosition(frame)      # Tespit edilen elin 21 eklem noktasının piksel koordinatlarını döner.
+
+    # Algılanan elin işaret parmağının ucunu ilgili fonksiyona gönderiyoruz
+    if len(lm_list) != 0:
+        x, y = lm_list[8][1], lm_list[8][2]
+        mouse_ctrl.move_cursor(x, y)            # move_cursor kameran alınan ham x ve y koordinatlarını bounding boxa oranlar ve imleci kaydırır.
 
     # Çizeceğimiz dikdörtgenin başlanfıç ve bitiş koordinatlarını veriyoruz (150,150) - (w-150, h-150)
     cv2.rectangle(frame, (config.FRAME_REDUCTION, config.FRAME_REDUCTION), (w-config.FRAME_REDUCTION, h-config.FRAME_REDUCTION),

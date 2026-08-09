@@ -2,7 +2,7 @@ from pynput import mouse
 import pyautogui
 import numpy as np
 import config
-import smoothing
+from utils import smoothing
 
 class MouseController:
     """
