@@ -1,11 +1,11 @@
 # ----- KAMERA AYARLARI -----
 CAM_WIDTH = 1280
 CAM_HEIGHT = 720
-FRAME_REDUCTION = 150 # Bounding Box (Etkin Alan) kenar payı (piksel) (kesinti miktarı)
+FRAME_REDUCTION = 100 # Bounding Box (Etkin Alan) kenar payı (piksel) (kesinti miktarı)
 
 # ----- TIKLAMA VE HAREKET EŞİKLERİ (THRESHOLD) -----
         # --- Piksel Cinsinden Mesafe ---
-CLICK_THRESHOLD = 35
+CLICK_THRESHOLD = 20    
 SCROLL_THRESHOLD = 30
 ZOOM_THRESHOLD = 40
 
