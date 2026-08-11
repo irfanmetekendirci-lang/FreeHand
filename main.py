@@ -47,7 +47,7 @@ while True:
        # Mesafeleri hesapla
         dist_index = myMath.calc_distance((x1, y1), (x2, y2))   # İşaret - Başparmak
         dist_middle = myMath.calc_distance((x3, y3), (x2, y2))  # Orta - Başparmak
-        dist_ring = myMath.calc_distance((x4, y4), (x2, y2))    # Sağ Tık için
+        dist_ring = myMath.calc_distance((x4, y4), (x2, y2))    # Sağ Tık için, başparmak - yüzük
 
         # İki mesafeyi de kontrole gönder
         mouse_ctrl.check_click(dist_index, dist_middle, dist_ring)
