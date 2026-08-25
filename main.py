@@ -35,22 +35,23 @@ while True:
     lm_list = detector.findPosition(frame)      # Tespit edilen elin 21 eklem noktasının piksel koordinatlarını döner.
 
     # Sadece el VARSA hareket ve tıklama mantığını çalıştır
-    if len(lm_list) != 0:
-
-        x1, y1 = lm_list[8][1], lm_list[8][2]       # işaret parmağı koordinatları (x, y)
-        x2, y2 = lm_list[4][1], lm_list[4][2]       # Baş parmak koordinatları (x, y)
-        x3, y3 = lm_list[12][1], lm_list[12][2]     # Orta Parmak koordinatları (x, y)
-        x4, y4 = lm_list[16][1], lm_list[16][2]     # Yüzük parmağı koordinatları (x, y)
-
-        mouse_ctrl.move_cursor(x1, y1)                      # move_cursor kameran alınan ham x ve y koordinatlarını bounding boxa oranlar ve imleci kaydırır.
+    if len(lm_list) != 0 and detector.results.multi_hand_landmarks:
         
-       # Mesafeleri hesapla
-        dist_index = myMath.calc_distance((x1, y1), (x2, y2))   # İşaret - Başparmak
-        dist_middle = myMath.calc_distance((x3, y3), (x2, y2))  # Orta - Başparmak
-        dist_ring = myMath.calc_distance((x4, y4), (x2, y2))    # Sağ Tık için, başparmak - yüzük
+        hand_landmarks = detector.results.multi_hand_landmarks[0]
+        fingers = detector.fingersUp(hand_landmarks.landmark)
 
-        # İki mesafeyi de kontrole gönder
-        mouse_ctrl.check_click(dist_index, dist_middle, dist_ring)
+        # Takip Noktası: ID 9 (Elin tam merkezi / orta parmak kökü)
+        # Bu nokta elini yumruk da yapsan, açsan da asla titremez!
+        x_center, y_center = lm_list[9][1], lm_list[9][2]
+
+        # 1. HAREKET KURALI:
+        # El açıkken GEZER, Yumruk yapıp sürüklerken de İMLEÇLE BİRLİKTE TAŞIR!
+        # Sadece tek tık / sağ tık anında imleci dondurur.
+        if fingers == [1, 1, 1, 1, 1] or (fingers[1] == 1 and fingers[2] == 1) or mouse_ctrl.is_dragging:
+            mouse_ctrl.move_cursor(x_center, y_center)
+
+        # 2. TIKLAMA VE SÜRÜKLEME KONTROLÜ
+        mouse_ctrl.check_click(fingers)
 
     cv2.imshow('frame', frame)
 

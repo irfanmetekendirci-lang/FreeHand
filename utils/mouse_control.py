@@ -70,47 +70,39 @@ class MouseController:
 
 
 
-    def check_click(self, dist_index, dist_middle, dist_ring):
+    def check_click(self, fingers):
         """
         İşaret, orta ve yüzük parmaklarının başparmağa olan mesafelerini alır.
         Mesafeler eşiğin altındaysa ilgili tıklama eylemini gerçekleştirir.
         """
-        # 1. SÜRÜKLE & BIRAK (DRAG & DROP): İşaret VE Orta parmak aynı anda yakınsa
-        if dist_index <= config.CLICK_THRESHOLD and dist_middle <= config.CLICK_THRESHOLD:
+        # 1. SÜRÜKLE & BIRAK: Yumruk yapınca SOL TIK BASILI TUTULUR
+        if fingers == [0, 0, 0, 0, 0]:
             if not self.is_dragging:
                 self.myMouse.press(mouse.Button.left)
                 self.is_dragging = True
                 self.is_clicked = True
-                print("Sürükleme Başarılı!")
+                print("Tuttu (Sürükleniyor...)")
 
+        # 2. BIRAKMA: El tamamen açıldığında serbest bırak
+        elif fingers == [1, 1, 1, 1, 1]:
+            if self.is_dragging:
+                self.myMouse.release(mouse.Button.left)
+                self.is_dragging = False
+                print("Bıraktı!")
+            self.is_clicked = False
 
-        # 2. ÇİFT TIK: Orta parmak başparmağa yakınsa
-        elif dist_middle <= config.CLICK_THRESHOLD and not self.is_clicked and not self.is_dragging:
-            self.myMouse.click(mouse.Button.left, 2)
-            self.is_clicked = True
-            print("Çift Tık Yapıldı!")
-
-        # 3. SOL TIK: İşaret parmağı başparmağa yakınsa
-        elif dist_index <= config.CLICK_THRESHOLD and not self.is_clicked:
+        # 3. SOL TIK: Sadece İşaret parmağı kapalı, diğerleri açık (Tetik çekme hareketi)
+        elif fingers[1] == 0 and fingers[2] == 1 and fingers[3] == 1 and not self.is_clicked and not self.is_dragging:
             self.myMouse.click(mouse.Button.left, 1)
             self.is_clicked = True
-            print("Sol Tık Yapıldı!")
+            print("Sol Tık!")
 
-        # 4. SAĞ TIK: Yüzük parmağı yakınsa VE işaret parmağı açıksa (Tetiklenme koruması)
-        elif dist_ring <= (config.CLICK_THRESHOLD - 5) and dist_index > (config.CLICK_THRESHOLD + 15) and not self.is_clicked:
+        # 4. SAĞ TIK: Sadece Orta parmak kapalı, diğerleri açık
+        elif fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 1 and not self.is_clicked and not self.is_dragging:
             self.myMouse.click(mouse.Button.right, 1)
             self.is_clicked = True
-            print("Sağ Tık Yapıldı!")
+            print("Sağ Tık!")
 
-        # 5. BIRAKMA (RELEASE): Tüm parmaklar açıldıysa kilidi kaldır
-        elif (dist_index > (config.CLICK_THRESHOLD + 10) and 
-              dist_middle > (config.CLICK_THRESHOLD + 10) and 
-              dist_ring > (config.CLICK_THRESHOLD + 10)):   
-
-            # Eğer o an sürükleme yapılıyorsa tuşu serbest bırak
-            if self.is_dragging:
-                self.myMouse.release(mouse.Button.left)  # Sol tıkı bırak
-                self.is_dragging = False
-                print("Bırakıldı (MouseUp)!")
-                
+        # 5. KİLİT SIFIRLAMA: El açıkken tekrar tıklamaya hazır ol
+        elif fingers[1] == 1 and fingers[2] == 1 and not self.is_dragging:
             self.is_clicked = False

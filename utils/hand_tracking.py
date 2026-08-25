@@ -1,5 +1,6 @@
 import cv2
 import mediapipe as mp
+from utils.math_utils import myMath
 
 class HandDetector:
     def __init__(self, max_hands=1, detection_con=0.7, tracking_con=0.7):
@@ -37,3 +38,46 @@ class HandDetector:
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lm_list.append([id, cx, cy])
         return lm_list
+
+    def fingersUp(self, landmarks):
+        """
+        MediaPipe'tan gelen el landmarks nesnesini alır.
+        myMath.calc_handAngel ile hesaplanan eklem açılarına göre 
+        5 parmağın açık (1) veya kapalı (0) olma durumunu liste olarak döner.
+        """
+        # 14 açıyı myMath sınıfından çekiyoruz
+        angels = myMath.calc_handAngel(landmarks)
+
+        fingers = []
+
+        # 1. Başparmak
+        if angels[1] > 160:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        # 2. İşaret Parmağı
+        if angels[3] > 160:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        # 3. Orta Parmak
+        if angels[6] > 160:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        # 4. Yüzük Parmağı
+        if angels[9] > 160:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        # 5. Serçe Parmak
+        if angels[12] > 160:
+            fingers.append(1)
+        else:
+            fingers.append(0)
+
+        return fingers
